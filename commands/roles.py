@@ -77,7 +77,7 @@ class Roles(commands.Cog):
             log_channel = self.bot.get_channel(LOG_CHANNEL_ID)
             if log_channel and isinstance(log_channel, discord.TextChannel):
                 embed = discord.Embed(
-                    title="🤍 역할 지급 완료",
+                    title="<a:cxr_1110:1406184343168094269> 역할 지급 완료",
                     description=f"{member.display_name} 님에게 역할이 지급되었습니다.",
                     color=discord.Color.from_rgb(255, 182, 193),
                     timestamp=datetime.now()
