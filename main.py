@@ -54,33 +54,15 @@ async def on_command_error(ctx, error):
     """
     명령어 실행 중 오류가 발생했을 때 처리하는 이벤트 핸들러
     """
-    # commands.CommandNotFound 오류는 무시하고, 아무 메시지도 보내지 않습니다.
+    # 등록되지 않은 명령어(오타)일 때만 메시지를 보냅니다.
     if isinstance(error, commands.CommandNotFound):
+        await ctx.send("❗명령어를 다시 입력해주세요.", delete_after=5)
         if ctx.guild:
             print(f"[{ctx.guild.name}] {ctx.author} 존재하지 않는 명령어 시도: {ctx.message.content}")
         return
 
-    # 나머지 오류 핸들링 코드는 그대로 유지
-    if isinstance(error, commands.MissingRequiredArgument):
-        if ctx.command:
-            if ctx.command.name == '역할지급':
-                await ctx.send("❗순서는 성별 >> 나이 순으로 작성해주세요. 나이는 '미자/성인' 중 하나여야 합니다.", delete_after=5)
-            elif ctx.command.name == '이름':
-                await ctx.send("❗변경할 닉네임을 입력해주세요.", delete_after=5)
-            elif ctx.command.name == '환영':
-                await ctx.send("❗환영 메시지를 보낼 유저를 멘션해주세요.", delete_after=5)
-        return
-
-    if isinstance(error, commands.MemberNotFound):
-        await ctx.send("❗올바른 유저를 멘션했는지 확인해주세요.", delete_after=5)
-        return
-
-    if isinstance(error, discord.Forbidden):
-        await ctx.send("❗봇에게 필요한 권한이 없습니다.", delete_after=5)
-        return
-
-    await ctx.send("❗명령어 실행 중 알 수 없는 오류가 발생했습니다.", delete_after=5)
-    print(f"오류: {error}")
+    # 나머지 오류는 로그만 출력하고 메시지를 보내지 않습니다.
+    print(f"명령어 실행 중 오류 발생: {error}")
 
 # 봇 실행
 if __name__ == "__main__":
