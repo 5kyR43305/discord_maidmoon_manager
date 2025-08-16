@@ -8,30 +8,20 @@ class Welcome(commands.Cog):
         self.bot = bot
 
     @commands.command(name='환영')
-    async def welcome(self, ctx, member: discord.Member):
+    async def welcome_prefix(self, ctx, member: discord.Member):
         """
-        특정 유저를 멘션하여 환영 메시지를 보냅니다.
-        !환영 @유저이름
+        특정 멤버에게 환영 메시지를 보냅니다.
         """
-        # 봇에게 관리자 권한이 있는지 확인
-        if not ctx.guild.me.guild_permissions.manage_guild:
-            await ctx.send("❗봇에게 '서버 관리' 권한이 없습니다.")
-            return
+        welcome_message = (
+            f'# <a:g1:1381626468735385600> <@{member.id}> 님 환영합니다!\n'
+            f'<a:s10:1381626541150175332> {member.mention} 님 𝐌𝐀𝐈𝐃 𝐌𝐨𝐨𝐍에 오신 것을 환영합니다!\n\n'
+            f'<a:s10:1381626541150175332> <#1381621263730086060>에서 규칙을 꼭 확인해주세요!\n'
+            f'<:19_:1381626681357238452> 규칙을 읽지 않아 생기는 불이익은 책임지지 않아요!\n\n'
+            f'<a:s10:1381626541150175332> 적응이 어렵다면 <@&1381621262291570842> 를 맨션해주세요!\n\n'
+            f'<:1911:1381626675489669220> 앞으로 잘 부탁드려요!\n'
+            f'<@&1381621262291570844>'
+        )
+        await ctx.send(welcome_message)
 
-        # '새로운 인원' 역할 찾기
-        role = discord.utils.get(ctx.guild.roles, name="새로운 인원")
-        if not role:
-            await ctx.send("❗'새로운 인원' 역할이 존재하지 않습니다.")
-            return
-
-        # 역할이 이미 있는지 확인
-        if role in member.roles:
-            await ctx.send(f"✅ {member.display_name} 님은 이미 '새로운 인원' 역할을 가지고 있습니다.", delete_after=5)
-            return
-
-        # 역할 지급
-        try:
-            await member.add_roles(role)
-            await ctx.send(f"✅ {member.mention} 님, 우리 서버에 오신 것을 환영합니다! 🎉")
-        except discord.Forbidden:
-            await ctx.send("❗봇의 역할 권한이 부족하여 역할을 지급할 수 없습니다. 봇 역할이 '새로운 인원' 역할보다 위에 있는지 확인해주세요.")
+async def setup(bot):
+    await bot.add_cog(Welcome(bot))
