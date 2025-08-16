@@ -1,21 +1,9 @@
 # main.py
 
+import os
 import discord
 from discord.ext import commands
-import os
-from dotenv import load_dotenv  # dotenv 라이브러리 임포트
-
-# 24/7 구동을 위한 keep_alive.py 파일
-from keep_alive import keep_alive
-
-# 명령어 모듈 임포트
-from commands.welcome import Welcome
-from commands.roles import Roles
-from commands.name import Name
-from commands.logger import Logger
-
-# .env 파일에서 환경 변수를 불러옵니다. 이 코드가 반드시 있어야 합니다.
-load_dotenv()
+import asyncio
 
 # intents 설정
 intents = discord.Intents.default()
@@ -26,29 +14,53 @@ intents.voice_states = True
 # 봇 생성
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# 코그(Cog)를 로드하는 함수
+async def load_cogs():
+    """
+    commands 폴더의 모든 코그 파일들을 자동으로 로드합니다.
+    """
+    for filename in os.listdir('./commands'):
+        if filename.endswith('.py'):
+            try:
+                # 파일명을 확장자 제외하고 가져와서 모듈 경로로 사용
+                await bot.load_extension(f'commands.{filename[:-3]}')
+                print(f"✅ 코그 로드 성공: {filename}")
+            except Exception as e:
+                print(f"❌ 코그 로드 실패: {filename} - {e}")
+
 @bot.event
 async def on_ready():
+    """
+    봇이 준비되면 실행되는 이벤트 핸들러
+    """
     print('-----------------------------------------')
     if bot.user:
         print(f'봇이 로그인했습니다: {bot.user.name} (ID: {bot.user.id})')
     else:
-        print('봇이 로그인했지만 사용자 정보를 가져올 수 없습니다. 인텐트 설정을 확인해주세요.')
+        print('봇이 로그인했지만 사용자 정보를 가져올 수 없습니다.')
     print('-----------------------------------------')
-    print('슬래시 커맨드 동기화 중...')
-    try:
-        synced = await bot.tree.sync()
-        print(f'{len(synced)}개의 슬래시 커맨드가 동기화되었습니다.')
-    except Exception as e:
-        print(f'슬래시 커맨드 동기화 오류: {e}')
+    
+    # 봇이 준비되면 코그를 로드합니다.
+    # on_ready 이벤트가 발생할 때마다 로드되지 않도록 한 번만 실행되게 합니다.
+    if not bot.extensions:
+        print('모든 코그 로드 중...')
+        await load_cogs()
+        print('모든 코그가 로드되었습니다.')
+
+    await bot.change_presence(activity=discord.Game(name="명령어는 !도움"))
 
 @bot.event
 async def on_command_error(ctx, error):
+    """
+    명령어 실행 중 오류가 발생했을 때 처리하는 이벤트 핸들러
+    """
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("❗명령어를 다시 입력해주세요.", delete_after=5)
         if ctx.guild:
             print(f"[{ctx.guild.name}] {ctx.author} 존재하지 않는 명령어 시도: {ctx.message.content}")
         return
 
+    # 나머지 오류 핸들링 코드는 그대로 유지
     if isinstance(error, commands.MissingRequiredArgument):
         if ctx.command:
             if ctx.command.name == '역할지급':
@@ -70,24 +82,13 @@ async def on_command_error(ctx, error):
     await ctx.send("❗명령어 실행 중 알 수 없는 오류가 발생했습니다.", delete_after=5)
     print(f"오류: {error}")
 
-async def main():
-    # Cogs를 로드합니다.
-    await bot.add_cog(Welcome(bot))
-    await bot.add_cog(Roles(bot))
-    await bot.add_cog(Name(bot))
-    await bot.add_cog(Logger(bot))
-
-    # 24/7 구동을 위한 keep_alive 서버 실행
-    keep_alive()
-
-    # 봇 실행
-    token = os.getenv('TOKEN')
+# 봇 실행
+if __name__ == "__main__":
+    token = os.environ.get('TOKEN')
     if token:
-        await bot.start(token)
+        try:
+            bot.run(token)
+        except discord.errors.LoginFailure:
+            print("❌ 토큰이 유효하지 않습니다. 환경 변수를 확인해주세요.")
     else:
         print("❌ TOKEN 환경 변수가 설정되지 않았습니다.")
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
-
