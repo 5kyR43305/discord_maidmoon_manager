@@ -8,19 +8,21 @@ class Name(commands.Cog):
         self.bot = bot
 
     @commands.command(name='이름')
-    async def change_name(self, ctx, *, new_name: str):
+    async def change_nickname_prefix(self, ctx, member: discord.Member, *, new_nickname: str):
         """
-        자신의 닉네임을 변경합니다.
-        !이름 [새로운 닉네임]
+        특정 멤버의 닉네임을 변경합니다.
         """
-        # 봇에게 닉네임 관리 권한이 있는지 확인
-        if not ctx.guild.me.guild_permissions.change_nickname:
-            await ctx.send("❗봇에게 '닉네임 변경' 권한이 없습니다.")
-            return
-            
+        if len(new_nickname) > 32:
+            return await ctx.send("❗닉네임은 32자 이내로 입력해주세요.", delete_after=5)
         try:
-            # 닉네임 변경
-            await ctx.author.edit(nick=new_name)
-            await ctx.send(f"✅ {ctx.author.mention} 님의 닉네임이 '{new_name}'(으)로 변경되었습니다.", delete_after=5)
+            new_nick_formatted = f'『🤍』︰{new_nickname} ꒷꒦₊'
+            await member.edit(nick=new_nick_formatted)
+            await ctx.send(f'✨ {member.mention} 님의 닉네임이 `{new_nick_formatted}` 으로 변경되었습니다!')
         except discord.Forbidden:
-            await ctx.send("❗봇의 권한이 부족하여 닉네임을 변경할 수 없습니다.")
+            await ctx.send("❗봇에게 닉네임 변경 권한이 없습니다.", delete_after=5)
+        except Exception as e:
+            await ctx.send("❗닉네임 변경 중 오류가 발생했습니다.", delete_after=5)
+            print(f"닉네임 변경 오류: {e}")
+
+async def setup(bot):
+    await bot.add_cog(Name(bot))
