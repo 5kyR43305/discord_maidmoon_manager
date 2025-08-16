@@ -54,8 +54,8 @@ async def on_command_error(ctx, error):
     """
     명령어 실행 중 오류가 발생했을 때 처리하는 이벤트 핸들러
     """
+    # commands.CommandNotFound 오류는 무시하고, 아무 메시지도 보내지 않습니다.
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("❗명령어를 다시 입력해주세요.", delete_after=5)
         if ctx.guild:
             print(f"[{ctx.guild.name}] {ctx.author} 존재하지 않는 명령어 시도: {ctx.message.content}")
         return
