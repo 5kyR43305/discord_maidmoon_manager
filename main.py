@@ -56,7 +56,6 @@ async def on_command_error(ctx, error):
     """
     # 등록되지 않은 명령어(오타)일 때만 메시지를 보냅니다.
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("❗명령어를 다시 입력해주세요.", delete_after=5)
         if ctx.guild:
             print(f"[{ctx.guild.name}] {ctx.author} 존재하지 않는 명령어 시도: {ctx.message.content}")
         return
