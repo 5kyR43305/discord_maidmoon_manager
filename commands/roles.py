@@ -60,6 +60,13 @@ class Roles(commands.Cog):
                 if role:
                     roles_to_add.append(role)
         
+        # '첫방문' 역할 추가 (새로 추가된 부분)
+        first_visit_role_id = ROLE_IDS.get('첫방문')
+        if first_visit_role_id:
+            first_visit_role = guild.get_role(first_visit_role_id)
+            if first_visit_role:
+                roles_to_add.append(first_visit_role)
+                
         # '미확인' 역할을 제거합니다.
         unverified_role_id = ROLE_IDS.get('미확인')
         if unverified_role_id:
@@ -121,4 +128,4 @@ class Roles(commands.Cog):
 
 # Cog를 봇에 추가하기 위한 setup 함수
 async def setup(bot):
-      await bot.add_cog(Roles(bot))
+    await bot.add_cog(Roles(bot))
