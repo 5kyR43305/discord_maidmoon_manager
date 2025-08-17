@@ -2,7 +2,8 @@
 
 import discord
 from discord.ext import commands
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+import pytz
 import psycopg2
 import os
 
@@ -48,10 +49,19 @@ class Planner(commands.Cog):
             return await ctx.send("❗명령어 형식이 올바르지 않습니다. `!일정추가 [일정이름] [날짜(YYYYMMDD)]`로 입력해주세요.", delete_after=10)
 
         try:
-            date_obj = datetime.strptime(date_str, '%Y%m%d')
-            formatted_date = date_obj.strftime('%Y-%m-%d')
+            date_obj = datetime.strptime(date_str, '%Y%m%d').date()
         except ValueError:
             return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정추가 크리스마스파티 20251225`", delete_after=10)
+
+        # 한국 서울 표준시(KST)를 기준으로 현재 날짜를 가져옵니다.
+        seoul_tz = pytz.timezone('Asia/Seoul')
+        today = datetime.now(seoul_tz).date()
+
+        # 입력된 날짜가 오늘보다 과거이면 일정 생성을 막습니다.
+        if date_obj < today:
+            return await ctx.send("❗과거 날짜의 일정은 추가할 수 없습니다.", delete_after=10)
+
+        formatted_date = date_obj.strftime('%Y-%m-%d')
         
         if not self.conn or self.conn.closed:
             self.connect_db()
