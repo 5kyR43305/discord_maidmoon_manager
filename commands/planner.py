@@ -32,50 +32,77 @@ class Planner(commands.Cog):
             print(f"❌ 데이터베이스 오류: {e}")
 
     @commands.command(name='일정추가')
-    async def add_plan(self, ctx, date_str: str, *, name: str):
+    async def add_plan(self, ctx, name: str, date_str: str):
         """
         일정을 추가합니다.
-        !일정추가 YYYY-MM-DD 일정내용
+        !일정추가 일정내용 YYYYMMDD
         """
+        if not date_str or not name:
+            return await ctx.send("❗명령어 형식이 올바르지 않습니다. `!일정추가 [일정이름] [날짜(YYYYMMDD)]`로 입력해주세요.", delete_after=10)
+
+        # YYYYMMDD 형식으로 날짜 변환
         try:
-            datetime.strptime(date_str, '%Y-%m-%d')
+            date_obj = datetime.strptime(date_str, '%Y%m%d')
+            formatted_date = date_obj.strftime('%Y-%m-%d')
         except ValueError:
-            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYY-MM-DD` 형식으로 입력해주세요. 예: `!일정추가 2025-12-25 크리스마스 파티`", delete_after=10)
+            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정추가 크리스마스파티 20251225`", delete_after=10)
 
         try:
-            self.cursor.execute("INSERT INTO plans (date, name) VALUES (?, ?)", (date_str, name))
+            self.cursor.execute("INSERT INTO plans (date, name) VALUES (?, ?)", (formatted_date, name))
             self.conn.commit()
             
             embed = discord.Embed(
                 title="✅ 일정 추가 완료",
-                description=f"`{date_str}`에 `{name}` 일정이 추가되었습니다.",
-                color=discord.Color.from_rgb(144, 238, 144) # 연두색
+                description=f"`{formatted_date}`에 `{name}` 일정이 추가되었습니다.",
+                color=discord.Color.from_rgb(144, 238, 144)
             )
             await ctx.send(embed=embed)
 
         except sqlite3.IntegrityError:
-            await ctx.send(f"❗{date_str}에 이미 `{name}` 일정이 존재합니다.", delete_after=5)
+            await ctx.send(f"❗`{formatted_date}`에 이미 `{name}` 일정이 존재합니다.", delete_after=5)
         except sqlite3.Error as e:
             await ctx.send("❗일정 추가 중 오류가 발생했습니다.", delete_after=5)
             print(f"데이터베이스 오류: {e}")
 
     @commands.command(name='일정제거')
-    async def remove_plan(self, ctx, date_str: str, *, name: str):
+    async def remove_plan(self, ctx, name: str, date_str: str = None):
         """
         일정을 제거합니다.
-        !일정제거 YYYY-MM-DD 일정내용
+        !일정제거 [일정이름] [날짜(YYYYMMDD)]
+        !일정제거 all (모든 일정 제거)
         """
+        if name.lower() == 'all':
+            # 모든 일정 제거
+            try:
+                self.cursor.execute("DELETE FROM plans")
+                self.conn.commit()
+                await ctx.send("✅ 모든 일정이 성공적으로 제거되었습니다.", delete_after=5)
+            except sqlite3.Error as e:
+                await ctx.send("❗모든 일정 제거 중 오류가 발생했습니다.", delete_after=5)
+                print(f"데이터베이스 오류: {e}")
+            return
+        
+        if not date_str:
+            return await ctx.send("❗특정 일정을 제거하려면 날짜를 입력해야 합니다. `!일정제거 [일정이름] [날짜(YYYYMMDD)]`로 입력해주세요.", delete_after=10)
+
         try:
-            self.cursor.execute("DELETE FROM plans WHERE date = ? AND name = ?", (date_str, name))
+            # YYYYMMDD 형식으로 날짜 변환
+            date_obj = datetime.strptime(date_str, '%Y%m%d')
+            formatted_date = date_obj.strftime('%Y-%m-%d')
+        except ValueError:
+            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정제거 크리스마스파티 20251225`", delete_after=10)
+
+        try:
+            self.cursor.execute("DELETE FROM plans WHERE date = ? AND name = ?", (formatted_date, name))
             self.conn.commit()
 
             if self.cursor.rowcount == 0:
-                await ctx.send(f"❗`{date_str}`에 `{name}` 일정이 존재하지 않습니다.", delete_after=5)
+                await ctx.send(f"❗`{formatted_date}`에 `{name}` 일정이 존재하지 않습니다.", delete_after=5)
             else:
                 embed = discord.Embed(
                     title="✅ 일정 제거 완료",
-                    description=f"`{date_str}`의 `{name}` 일정이 삭제되었습니다.",
-                    color=discord.Color.from_rgb(255, 105, 97) # 붉은색
+                    description=f"`{formatted_date}`의 `{name}` 일정이 삭제되었습니다.",
+                    color=discord.Color.from_rgb(255, 105, 97)
                 )
                 await ctx.send(embed=embed)
         except sqlite3.Error as e:
@@ -96,7 +123,7 @@ class Planner(commands.Cog):
         embed = discord.Embed(
             title="📋 기획팀 일정",
             description="현재 등록된 모든 일정입니다.",
-            color=discord.Color.from_rgb(173, 216, 230) # 하늘색
+            color=discord.Color.from_rgb(173, 216, 230)
         )
         
         # 날짜별로 일정을 그룹화합니다.
