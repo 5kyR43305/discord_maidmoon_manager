@@ -47,7 +47,7 @@ async def on_ready():
         await load_cogs()
         print('모든 코그가 로드되었습니다.')
 
-    await bot.change_presence(activity=discord.Game(name="𝐌𝐀𝐈𝐃 𝐌𝐨𝐨𝐍을 관리하고 있습니다."))
+    await bot.change_presence(activity=discord.Game(name="MAID MOON을 관리하고 있습니다."))
 
 @bot.event
 async def on_command_error(ctx, error):
