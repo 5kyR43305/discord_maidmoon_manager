@@ -45,7 +45,7 @@ class Planner(commands.Cog):
             date_obj = datetime.strptime(date_str, '%Y%m%d')
             formatted_date = date_obj.strftime('%Y-%m-%d')
         except ValueError:
-            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정추가 크리스마스파티 20251225`", delete_after=10)
+            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정추가 서버장생일 20110402`", delete_after=10)
 
         try:
             self.cursor.execute("INSERT INTO plans (date, name) VALUES (?, ?)", (formatted_date, name))
@@ -90,7 +90,7 @@ class Planner(commands.Cog):
             date_obj = datetime.strptime(date_str, '%Y%m%d')
             formatted_date = date_obj.strftime('%Y-%m-%d')
         except ValueError:
-            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정제거 크리스마스파티 20251225`", delete_after=10)
+            return await ctx.send("❗날짜 형식이 올바르지 않습니다. `YYYYMMDD` 형식으로 입력해주세요. 예: `!일정제거 서버장생일 20110402`", delete_after=10)
 
         try:
             self.cursor.execute("DELETE FROM plans WHERE date = ? AND name = ?", (formatted_date, name))
