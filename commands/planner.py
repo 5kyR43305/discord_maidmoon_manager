@@ -15,7 +15,7 @@ class Planner(commands.Cog):
 
     def connect_db(self):
         """환경 변수에서 데이터베이스 URL을 가져와 연결합니다."""
-        db_url = os.environ.get('/var/lib/postgresql/data')
+        db_url = os.environ.get('DATABASE_URL')
         if not db_url:
             print("❌ DATABASE_URL 환경 변수가 설정되지 않았습니다.")
             return
