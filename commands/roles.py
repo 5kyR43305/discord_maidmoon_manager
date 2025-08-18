@@ -111,7 +111,7 @@ class Roles(commands.Cog):
                     timestamp=datetime.now()
                 )
                 embed.set_thumbnail(url=member.display_avatar.url)
-                embed.add_field(name="관리자", value=ctx.author.mention, inline=False)
+                embed.add_field(name="접객팀", value=ctx.author.mention, inline=False)
                 embed.add_field(name="대상", value=member.mention, inline=False)
                 if added_names:
                     embed.add_field(name="지급된 역할", value=added_names, inline=False)
