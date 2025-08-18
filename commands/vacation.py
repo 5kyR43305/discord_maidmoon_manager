@@ -13,7 +13,7 @@ class Vacation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # settings.py에서 직접 ID 값들을 가져옵니다.
-        self._5kyr4_user_id = SKILA_USER_ID
+        self.SKILA_USER_ID = SKILA_USER_ID
         self.vacation_channel_id = VACATION_CHANNEL_ID
         self.management_role_id = MANAGEMENT_ROLE_ID
 
@@ -27,7 +27,7 @@ class Vacation(commands.Cog):
             return False
 
         has_required_role = management_role in ctx.author.roles
-        is_5kyr4 = ctx.author.id == self._5kyr4_user_id
+        is_5kyr4 = ctx.author.id == self.SKILA_USER_ID
         
         if not is_5kyr4 and not has_required_role:
             await ctx.send(f"❗{ctx.author.mention}님, 이 명령어는 5kyr4님 또는 '{management_role.name}' 역할을 가진 사용자만 사용할 수 있습니다.", delete_after=10)
@@ -39,7 +39,7 @@ class Vacation(commands.Cog):
         휴가 로그를 채널에 전송하고 5kyr4님에게 DM을 보냅니다.
         """
         # 5kyr4 유저와 휴가 채널을 찾습니다.
-        _5kyr4_user = self.bot.get_user(self._5kyr4_user_id)
+        _5kyr4_user = self.bot.get_user(self.SKILA_USER_ID)
         vacation_channel = self.bot.get_channel(self.vacation_channel_id)
         
         # 로그 채널에 보낼 임베드 생성
