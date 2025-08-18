@@ -1,9 +1,9 @@
 # commands/vacation.py
 
 import discord
-import os
 from discord.ext import commands
 from datetime import datetime
+from settings import SKILA_USER_ID, VACATION_CHANNEL_ID, MANAGEMENT_ROLE_ID
 
 class Vacation(commands.Cog):
     """
@@ -12,24 +12,25 @@ class Vacation(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        # 환경 변수에서 5kyr4 유저 ID와 휴가 채널 ID를 가져옵니다.
-        # ID가 숫자인지 확인하고 int형으로 변환합니다.
-        try:
-            self._5kyr4_user_id = int(os.getenv('SKILA_USER_ID'))
-            self.vacation_channel_id = int(os.getenv('VACATION_CHANNEL_ID'))
-        except (ValueError, TypeError):
-            print("❗[환경 변수 오류] SKILA_USER_ID 또는 VACATION_CHANNEL_ID가 없거나 올바르지 않습니다.")
-            self._5kyr4_user_id = None
-            self.vacation_channel_id = None
+        # settings.py에서 직접 ID 값들을 가져옵니다.
+        self._5kyr4_user_id = SKILA_USER_ID
+        self.vacation_channel_id = VACATION_CHANNEL_ID
+        self.management_role_id = MANAGEMENT_ROLE_ID
 
     async def cog_check(self, ctx):
         # 5kyr4님(본인) 또는 '관리국' 역할을 가진 사용자만 사용 가능
-        required_role_name = '관리국'
-        has_required_role = any(role.name == required_role_name for role in ctx.author.roles)
+        management_role = ctx.guild.get_role(self.management_role_id)
+        
+        # 관리국 역할이 존재하지 않을 경우 오류 방지
+        if not management_role:
+            await ctx.send("❗'관리국' 역할이 서버에 존재하지 않습니다. 관리국 역할을 올바르게 설정해주세요.", delete_after=10)
+            return False
+
+        has_required_role = management_role in ctx.author.roles
         is_5kyr4 = ctx.author.id == self._5kyr4_user_id
         
         if not is_5kyr4 and not has_required_role:
-            await ctx.send(f"❗{ctx.author.mention}님, 이 명령어는 5kyr4님 또는 '{required_role_name}' 역할을 가진 사용자만 사용할 수 있습니다.", delete_after=10)
+            await ctx.send(f"❗{ctx.author.mention}님, 이 명령어는 5kyr4님 또는 '{management_role.name}' 역할을 가진 사용자만 사용할 수 있습니다.", delete_after=10)
             return False
         return True
 
@@ -37,10 +38,6 @@ class Vacation(commands.Cog):
         """
         휴가 로그를 채널에 전송하고 5kyr4님에게 DM을 보냅니다.
         """
-        if self._5kyr4_user_id is None or self.vacation_channel_id is None:
-            await ctx.send("❗봇의 환경 설정이 올바르지 않아 명령어를 실행할 수 없습니다.", delete_after=10)
-            return
-
         # 5kyr4 유저와 휴가 채널을 찾습니다.
         _5kyr4_user = self.bot.get_user(self._5kyr4_user_id)
         vacation_channel = self.bot.get_channel(self.vacation_channel_id)
