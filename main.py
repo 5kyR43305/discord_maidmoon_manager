@@ -56,18 +56,13 @@ async def on_command_error(ctx, error):
     """
     # 오타로 인해 명령어를 찾을 수 없을 때
     if isinstance(error, commands.CommandNotFound):
-        # 메시지 내용이 '!출첵'으로 시작하면 아무 메시지도 보내지 않고 종료합니다.
+        # '!출첵'으로 시작하는 메시지일 경우, 아무것도 하지 않고 함수 종료
         if ctx.message.content.startswith('!출첵'):
-            print(f"[{ctx.guild.name}] {ctx.author}의 '!출첵' 명령어는 무시되었습니다.")
             return
-
-        # 다른 오타일 경우에만 메시지를 보냅니다.
-        await ctx.send("❗명령어를 다시 입력해주세요.", delete_after=5)
-        if ctx.guild:
-            print(f"[{ctx.guild.name}] {ctx.author} 존재하지 않는 명령어 시도: {ctx.message.content}")
+        # 그 외의 잘못된 명령어는 로그나 메시지 없이 조용히 넘어갑니다.
         return
 
-    # 나머지 오류는 로그만 출력하고 메시지를 보내지 않습니다.
+    # 나머지 다른 종류의 오류는 로그를 출력합니다.
     print(f"명령어 실행 중 오류 발생: {error}")
 
 # 봇 실행
