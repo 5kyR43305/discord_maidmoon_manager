@@ -72,18 +72,11 @@ class Logger(commands.Cog):
             )
 
         # "방문객" 리스트 (명령어 사용자를 제외한 모든 멤버)
-        guest_list = []
-        for current_member in voice_channel.members:
-            # 명령어 사용자는 제외합니다.
-            if current_member.id != member.id:
-                if current_member.id in voice_start_times:
-                    start_time = voice_start_times[current_member.id]
-                    duration = datetime.now() - start_time
-                    hours, remainder = divmod(int(duration.total_seconds()), 3600)
-                    minutes, seconds = divmod(remainder, 60)
-                    guest_list.append(f"{current_member.mention} : {hours}시간 {minutes}분 {seconds}초")
-                else:
-                    guest_list.append(f"{current_member.mention} : 접속 기록을 찾을 수 없습니다.")
+        guest_list = [
+            f"- {current_member.display_name}"
+            for current_member in voice_channel.members
+            if current_member.id != member.id
+        ]
 
         # 방문객 목록이 있을 경우 임베드 필드 추가
         if guest_list:
