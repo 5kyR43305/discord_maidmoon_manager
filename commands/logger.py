@@ -54,7 +54,7 @@ class Logger(commands.Cog):
 
         # 임베드 메시지 생성
         embed = discord.Embed(
-            title=f"� {voice_channel.name} 음성 채널 접속 기록",
+            title=f"🔊 {voice_channel.name} 음성 채널 접속 기록",
             description=f"현재 **{len(voice_channel.members)}명**이 접속 중입니다.\n**({date_string} 기준)**",
             color=0x42f5a7 # 밝은 초록색
         )
