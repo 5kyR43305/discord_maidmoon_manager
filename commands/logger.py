@@ -54,7 +54,7 @@ class Logger(commands.Cog):
 
         # 임베드 메시지 생성
         embed = discord.Embed(
-            title=f"🔊 {voice_channel.name} 음성 채널 접속 기록",
+            title=f"� {voice_channel.name} 음성 채널 접속 기록",
             description=f"현재 **{len(voice_channel.members)}명**이 접속 중입니다.\n**({date_string} 기준)**",
             color=0x42f5a7 # 밝은 초록색
         )
@@ -71,9 +71,10 @@ class Logger(commands.Cog):
                 inline=False
             )
         else:
+            # 봇이 재시작되기 전에 이미 채널에 접속한 경우
             embed.add_field(
                 name="👤 명령어 사용자",
-                value=f"{member.mention} : 접속 기록을 찾을 수 없습니다.",
+                value=f"{member.mention} : 접속 기록을 찾을 수 없습니다.\n(봇 시작 이전에 접속함)",
                 inline=False
             )
 
@@ -100,4 +101,3 @@ class Logger(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Logger(bot))
-
