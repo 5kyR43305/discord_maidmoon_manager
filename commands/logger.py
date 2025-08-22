@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from datetime import datetime
+import pytz
 
 # 음성 채널 입장 시간을 기록할 딕셔너리
 # 봇이 재시작되면 기록이 초기화됩니다.
@@ -46,10 +47,15 @@ class Logger(commands.Cog):
 
         voice_channel = member.voice.channel
         
+        # 현재 KST(한국 표준시) 날짜 및 시간 계산
+        kst = pytz.timezone('Asia/Seoul')
+        now_kst = datetime.now(kst)
+        date_string = now_kst.strftime("%Y년 %m월 %d일 (%a) %H:%M:%S")
+
         # 임베드 메시지 생성
         embed = discord.Embed(
             title=f"🔊 {voice_channel.name} 음성 채널 접속 기록",
-            description=f"현재 **{len(voice_channel.members)}명**이 접속 중입니다.",
+            description=f"현재 **{len(voice_channel.members)}명**이 접속 중입니다.\n**({date_string} 기준)**",
             color=0x42f5a7 # 밝은 초록색
         )
 
