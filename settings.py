@@ -1,6 +1,6 @@
 # config/settings.py
 
-# 역할 ID 모음 (실제 서버의 역할 ID로 변경해주세요)
+# 역할 ID 모음
 ROLE_IDS = {
     '남자': 1381621262312538257,
     '여자': 1381621262312538258,
@@ -11,13 +11,9 @@ ROLE_IDS = {
     '미확인': 1393247140536651888
 }
 
-# 로그를 기록할 채널 ID (실제 채널 ID로 변경해주세요)
+# 로그를 기록할 채널 ID
 LOG_CHANNEL_ID = 1381621262874574884
 
-# 휴가 관리용 ID (실제 ID로 교체하세요)
-# 5kyr4의 유저 ID
-SKILA_USER_ID = 795176358045155339
-# 휴가 로그를 남길 채널 ID
-VACATION_CHANNEL_ID = 1389204040981938268
-# 관리국 역할 ID
-MANAGEMENT_ROLE_ID = 1381621262345965610
+# Discoal 추천해주세요 관련 ID
+DICOAL_MENTION_ROLE_ID = 1381621261976731751
+DICOAL_MENTION_CHANNEL_ID = 1381621265714118752
