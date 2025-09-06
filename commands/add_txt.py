@@ -47,12 +47,17 @@ class TextSender(commands.Cog):
                     # 이모지를 찾았다면, 텍스트 형태의 이모지를 실제 이모지 객체로 변환합니다.
                     processed_message = processed_message.replace(match.group(0), str(found_emoji), 1)
 
-            # 메시지 내용을 2000자씩 분할하여 전송합니다.
-            # 텍스트를 코드 블록에 담기 위해 ```로 시작하고 ```로 끝내도록 처리합니다.
-            chunks = [processed_message[i:i + 1994] for i in range(0, len(processed_message), 1994)]
-            
-            for chunk in chunks:
-                await ctx.send(f"```\n{chunk}\n```")
+            # 메시지 내용이 2000자를 초과하는지 확인합니다.
+            if len(processed_message) > 2000:
+                # 메시지를 2000자씩 분할합니다.
+                chunks = [processed_message[i:i + 2000] for i in range(0, len(processed_message), 2000)]
+                
+                # 각 분할된 메시지를 순서대로 전송합니다.
+                for chunk in chunks:
+                    await ctx.send(chunk)
+            else:
+                # 2000자 이내일 경우, 그대로 전송합니다.
+                await ctx.send(processed_message)
 
         except Exception as e:
             # 예외 발생 시, 사용자에게 오류 메시지를 보냅니다.
