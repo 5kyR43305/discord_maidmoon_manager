@@ -49,6 +49,7 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game(name="𝐌𝐀𝐈𝐃 𝐌𝐨𝐨𝐍을 관리하고 있습니다."))
 
+
 @bot.event
 async def on_command_error(ctx, error):
     """
@@ -75,3 +76,5 @@ if __name__ == "__main__":
             print("❌ 토큰이 유효하지 않습니다. 환경 변수를 확인해주세요.")
     else:
         print("❌ TOKEN 환경 변수가 설정되지 않았습니다.")
+
+        
