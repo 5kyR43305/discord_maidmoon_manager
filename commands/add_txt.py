@@ -10,7 +10,7 @@ class TextSender(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name=txtlog)
+    @commands.command(name='txtlog')
     async def txtlog_command(self, ctx, *, message_content: str):
         """
         '!txtlog' 명령어 뒤에 오는 모든 텍스트와 이모지를 그대로 채널에 송출합니다.
