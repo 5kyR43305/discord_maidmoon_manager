@@ -21,26 +21,32 @@ class TextSender(commands.Cog):
         - message_content: 명령어 뒤에 입력된 모든 텍스트
         """
         try:
-            # `:이모지이름:` 패턴을 찾는 정규 표현식
-            emoji_pattern = re.compile(r':(\w+):')
-            
-            # 메시지에서 모든 이모지 이름을 찾습니다.
-            matches = emoji_pattern.finditer(message_content)
+            # 이모지 이름 또는 ID 패턴을 찾는 정규 표현식
+            # <:이름:ID>, <a:이름:ID>, :이름: 형식을 모두 처리합니다.
+            emoji_pattern = re.compile(r'<a?:(\w+):(\d+)>|:(\w+):')
             
             processed_message = message_content
             
-            # 이모지 이름들을 순회하며 실제 이모지 객체로 변환합니다.
+            # 메시지에서 모든 이모지 패턴을 찾습니다.
+            matches = emoji_pattern.finditer(message_content)
+            
+            # 찾은 패턴을 순회하며 실제 이모지 객체로 변환합니다.
             for match in matches:
-                emoji_name = match.group(1)
-                
-                # 서버에서 해당 이름의 이모지를 찾습니다.
-                found_emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name)
-                
+                # <:이름:ID> 또는 <a:이름:ID> 형식일 경우
+                if match.group(1) and match.group(2):
+                    emoji_name = match.group(1)
+                    emoji_id = int(match.group(2))
+                    found_emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name, id=emoji_id)
+                    
+                # :이름: 형식일 경우
+                else:
+                    emoji_name = match.group(3)
+                    found_emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name)
+
                 if found_emoji:
                     # 이모지를 찾았다면, 텍스트 형태의 이모지를 실제 이모지 객체로 변환합니다.
-                    # str(found_emoji)는 정적/애니메이션 이모지 모두 올바른 마크다운을 반환합니다.
                     processed_message = processed_message.replace(match.group(0), str(found_emoji), 1)
-            
+
             # 메시지 내용을 2000자씩 분할하여 전송합니다.
             # 텍스트를 코드 블록에 담기 위해 ```로 시작하고 ```로 끝내도록 처리합니다.
             chunks = [processed_message[i:i + 1994] for i in range(0, len(processed_message), 1994)]
